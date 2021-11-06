@@ -1,37 +1,56 @@
 import React from "react";
 
 const App = () => {
-  const oneAway = (str1, str2) => {
-    if (Math.abs(str1 - str2) > 1) {
-      return false;
-    } else if (str1 === str2) {
-      return true;
+  class ListNode {
+    constructor(data) {
+      this.data = data;
+      this.next = null;
     }
+  }
 
-    const length = Math.ceil((str1.length + str2.length) / 2);
+  class LinkedList {
+    constructor(head = null) {
+      this.head = head;
+    }
+  }
 
-    for (let i = 0; i < length; i++) {
-      if (str1[i] !== str2[i]) {
-        if (str1.length > str2.length) {
-          str2 = str2.slice(0, i) + str1[i] + str2.slice(i, str2.length);
+  let node1 = new ListNode(2);
+  let node2 = new ListNode(5);
+  node1.next = node2;
 
-          return str1 === str2;
-        } else if (str1.length < str2.length) {
-          str1 = str1.slice(0, i) + str2[i] + str1.slice(i, str1.length);
-          return str1 === str2;
-        } else {
-          str2 = str2.slice(0, i) + str1[i] + str2.slice(i + 1, str2.length);
-          return str1 === str2;
-        }
+  let node3 = new ListNode(1);
+  node2.next = node3;
+  let node4 = new ListNode(1);
+  node3.next = node4;
+
+  let list = new LinkedList(node1);
+
+  // 2.4 partition. write code to partition a linked list around value x so that al nodes less than x come before all nodes greater than or equal to x. the partition element can appear in the right partition
+  const partition = (list, partition) => {
+    let currNode = list.head;
+    let prevNode = list.head;
+
+    while (currNode.next) {
+      if (currNode.data <= partition) {
+        prevNode.next = currNode.next;
+        currNode.next = list.head;
+        list.head = currNode;
+        currNode = prevNode.next;
+      } else {
+        prevNode = currNode;
+        currNode = currNode.next;
       }
-      return true;
     }
+
+    if (currNode.data <= partition) {
+      currNode.next = list.head;
+      list.head = currNode;
+    }
+    return list;
   };
 
-  console.log(oneAway("pale", "ple")); //true
-  console.log(oneAway("pales", "pale")); //true
-  console.log(oneAway("pale", "bale")); //true
-  console.log(oneAway("pale", "bake")); //false
+  console.log(partition(list, 1));
+
   return <div></div>;
 };
 
