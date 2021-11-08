@@ -25,31 +25,56 @@ const App = () => {
 
   let list = new LinkedList(node1);
 
-  // 2.4 partition. write code to partition a linked list around value x so that al nodes less than x come before all nodes greater than or equal to x. the partition element can appear in the right partition
-  const partition = (list, partition) => {
-    let currNode = list.head;
-    let prevNode = list.head;
+  let nodeA = new ListNode(7);
+  let nodeB = new ListNode(1);
+  nodeA.next = nodeB;
 
-    while (currNode.next) {
-      if (currNode.data <= partition) {
-        prevNode.next = currNode.next;
-        currNode.next = list.head;
-        list.head = currNode;
-        currNode = prevNode.next;
+  let nodeC = new ListNode(7);
+  nodeB.next = nodeC;
+
+  let list1 = new LinkedList(nodeA);
+
+  let nodeAA = new ListNode(5);
+  let nodeBB = new ListNode(5);
+  nodeAA.next = nodeBB;
+
+  let nodeCC = new ListNode(5);
+  nodeBB.next = nodeCC;
+
+  let list2 = new LinkedList(nodeAA);
+
+  const isPalindrome = (list) => {
+    if (!list) {
+      throw new Error("invalid input");
+    }
+
+    let currNode = list.head;
+    let cache = {};
+    let onlyOdd = true;
+    while (currNode) {
+      if (cache[currNode.data]) {
+        cache[currNode.data] += 1;
       } else {
-        prevNode = currNode;
-        currNode = currNode.next;
+        cache[currNode.data] = 1;
+      }
+      currNode = currNode.next;
+    }
+
+    for (let key in cache) {
+      if (cache[key] % 2 === 1) {
+        if (!onlyOdd) {
+          return false;
+        } else {
+          onlyOdd = false;
+        }
       }
     }
-
-    if (currNode.data <= partition) {
-      currNode.next = list.head;
-      list.head = currNode;
-    }
-    return list;
+    return true;
   };
 
-  console.log(partition(list, 1));
+  console.log(isPalindrome(list));
+  console.log(isPalindrome(list1));
+  console.log(isPalindrome(list2));
 
   return <div></div>;
 };
