@@ -1,80 +1,99 @@
 import React from "react";
 
 const App = () => {
-  class ListNode {
-    constructor(data) {
-      this.data = data;
-      this.next = null;
+  class GraphNode {
+    constructor(value) {
+      this.value = value;
+      this.adjacents = [];
     }
-  }
-
-  class LinkedList {
-    constructor(head = null) {
-      this.head = head;
+    addAdjacent(node) {
+      this.adjacents.push(node);
     }
-  }
-
-  let node1 = new ListNode(2);
-  let node2 = new ListNode(5);
-  node1.next = node2;
-
-  let node3 = new ListNode(1);
-  node2.next = node3;
-  let node4 = new ListNode(1);
-  node3.next = node4;
-
-  let list = new LinkedList(node1);
-
-  let nodeA = new ListNode(7);
-  let nodeB = new ListNode(1);
-  nodeA.next = nodeB;
-
-  let nodeC = new ListNode(7);
-  nodeB.next = nodeC;
-
-  let list1 = new LinkedList(nodeA);
-
-  let nodeAA = new ListNode(5);
-  let nodeBB = new ListNode(5);
-  nodeAA.next = nodeBB;
-
-  let nodeCC = new ListNode(5);
-  nodeBB.next = nodeCC;
-
-  let list2 = new LinkedList(nodeAA);
-
-  const isPalindrome = (list) => {
-    if (!list) {
-      throw new Error("invalid input");
-    }
-
-    let currNode = list.head;
-    let cache = {};
-    let onlyOdd = true;
-    while (currNode) {
-      if (cache[currNode.data]) {
-        cache[currNode.data] += 1;
-      } else {
-        cache[currNode.data] = 1;
+    removeAdjacent(node) {
+      const index = this.adjacents.indexOf(node);
+      if (index > -1) {
+        this.adjacents.splice(index, 1);
+        return node;
       }
-      currNode = currNode.next;
     }
+    getAdjacents() {
+      return this.adjacents;
+    }
+    isAdjacent(node) {
+      return this.adjacents.indexOf(node) > -1;
+    }
+  }
 
-    for (let key in cache) {
-      if (cache[key] % 2 === 1) {
-        if (!onlyOdd) {
-          return false;
-        } else {
-          onlyOdd = false;
+  class Graph {
+    constructor() {
+      this.nodes = new Map();
+    }
+    addEdge(source, destination) {
+      const sourceNode = this.addVertex(source);
+      const destinationNode = this.addVertex(destination);
+      sourceNode.addAdjacent(destinationNode);
+      return [sourceNode, destinationNode];
+    }
+    addVertex(value) {
+      if (this.nodes.has(value)) {
+        return this.nodes.get(value);
+      } else {
+        const vertex = new GraphNode(value);
+        this.nodes.set(value, vertex);
+        return vertex;
+      }
+    }
+    removeVertex(value) {
+      const current = this.nodes.get(value);
+      if (current) {
+        for (const nodes of this.nodes.values()) {
+          nodes.removeAdjacent(current);
         }
       }
+      return this.nodes.delete(value);
     }
-    return true;
+    removeEdge(source, destination) {
+      const sourceNode = this.nodes.get(source);
+      const destinationNode = this.nodes.get(destination);
+      if (sourceNode && destinationNode) {
+        sourceNode.removeAdjacent(destinationNode);
+      }
+      return [sourceNode, destinationNode];
+    }
+  }
+
+  const projects = ["a", "b", "c", "d", "e", "f"];
+  const dependencies = [
+    ["a", "d"],
+    ["f", "b"],
+    ["b", "d"],
+    ["f", "a"],
+    ["d", "c"],
+  ];
+  const buildProject = (projects, dependencies) => {
+    let projectsGraph = new Graph();
+    for (let i = 0; i < projects.length; i++) {
+      projectsGraph.addVertex(projects[i]);
+    }
+
+    for (let j = 0; j < dependencies.length; j++) {
+      projectsGraph.addEdge(dependencies[j][0], dependencies[j][1]);
+    }
+
+    return projectsGraph;
   };
 
-  console.log(isPalindrome(list));
-  console.log(isPalindrome(list1));
-  console.log(isPalindrome(list2));
+  let projectsGraph = buildProject(projects, dependencies);
+
+  const projectBuilder = (graph) => {
+    console.log(graph);
+    let order = [];
+
+    for (const [key, value] of graph) {
+      console.log(value.getAdjacents());
+    }
+  };
+  console.log(projectBuilder(projectsGraph));
 
   return <div></div>;
 };
