@@ -561,6 +561,7 @@ export function buildOrder(projects, dependencies) {
   // create adjacency matrix
   projects.forEach((project) => (adj[project] = []));
   dependencies.forEach((edge) => adj[edge[1]].push(edge[0]));
+  console.log(adj);
   // run topological sort
   projects.forEach((project) =>
     topologicalSort(adj, discovered, finished, path, project)
@@ -586,3 +587,94 @@ function topologicalSort(adj, discovered, finished, path, project) {
   path.delete(project);
   finished.push(project);
 }
+
+// 4.8 first common ancestor. design an algo and write code to find the first common ancestor of two nodes in a binary tree. avoid storing additional nodes in a data structure.
+const distanceToRoot = (node) => {
+  let count = 0;
+  while (node) {
+    node = node.parent;
+    count++;
+  }
+  return count;
+};
+
+const makeEqualDepth = (nodeA, nodeB) => {
+  let countA = distanceToRoot(nodeA);
+  let countB = distanceToRoot(nodeB);
+  let count = Math.abs(countA - countB);
+
+  if (count > 0) {
+    let greaterNode = countA > countB ? countA : countB;
+    let lesserNode = countA < countB ? countA : countB;
+    while (count) {
+      greaterNode = greaterNode.parent;
+      count--;
+    }
+  }
+  return findAnscestor(greaterNode, lesserNode);
+};
+
+const findAncestor = (nodeA, nodeB) => {
+  if (nodeA === nodeB) {
+    return nodeA;
+  }
+  if (!nodeA || !nodeB) {
+    throw new Error("nodes are not in same tree");
+  }
+
+  nodeA = nodeA.parent;
+  nodeB = nodeB.parent;
+  return findAncestor(nodeA, nodeB);
+};
+
+/**
+ * The two given nodes could be anywhere within the tree and travelling upwards
+ * we will eventually find the point at which the paths to the nodes diverge. As
+ * we don't want to use extra space (so a map of nodes isn't an option) we first
+ * need to figure out the different in depth of the two nodes. We then travel up
+ * from the lower node, if there is one, so that we start at the same depth down
+ * the path of each node. After we're at equal depths we just follow parent
+ * pointers until we find a node that is common to both paths, that is the first
+ * common ancestor.
+ *
+ * N = |tree|
+ * Time: O(lg N) - assumes balanced tree, worst case O(N)
+ * Additional space: O(1)
+ */
+export function findFirstCommonAnscestor(node1, node2) {
+  if (!node1 || !node2) {
+    throw new Error("node1 and node2 must both be valid nodes");
+  }
+
+  let h1 = height(node1),
+    h2 = height(node2);
+  node1 = moveUp(node1, h1 - h2);
+  node2 = moveUp(node2, h2 - h1);
+  while (node1 !== node2) {
+    node1 = node1.parent;
+    node2 = node2.parent;
+  }
+
+  return node1.val;
+}
+
+function height(node) {
+  let count = 0;
+  while (node) {
+    node = node.parent;
+    ++count;
+  }
+  return count;
+}
+
+function moveUp(node, count) {
+  for (let i = count; i > 0; --i) {
+    node = node.parent;
+  }
+  return node;
+}
+
+// 4.9 BST Sequences. A binary search tree was created by traversing through an array from left to right and inserting each element. Given a binary search tree with distinct elements, pprint all possible arrays that could have led to this tree
+// 2
+//1   3
+// output: [2,1,3],[2,3,1]

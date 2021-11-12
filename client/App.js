@@ -1,99 +1,33 @@
 import React from "react";
 
 const App = () => {
-  class GraphNode {
-    constructor(value) {
-      this.value = value;
-      this.adjacents = [];
-    }
-    addAdjacent(node) {
-      this.adjacents.push(node);
-    }
-    removeAdjacent(node) {
-      const index = this.adjacents.indexOf(node);
-      if (index > -1) {
-        this.adjacents.splice(index, 1);
-        return node;
-      }
-    }
-    getAdjacents() {
-      return this.adjacents;
-    }
-    isAdjacent(node) {
-      return this.adjacents.indexOf(node) > -1;
-    }
-  }
-
-  class Graph {
-    constructor() {
-      this.nodes = new Map();
-    }
-    addEdge(source, destination) {
-      const sourceNode = this.addVertex(source);
-      const destinationNode = this.addVertex(destination);
-      sourceNode.addAdjacent(destinationNode);
-      return [sourceNode, destinationNode];
-    }
-    addVertex(value) {
-      if (this.nodes.has(value)) {
-        return this.nodes.get(value);
-      } else {
-        const vertex = new GraphNode(value);
-        this.nodes.set(value, vertex);
-        return vertex;
-      }
-    }
-    removeVertex(value) {
-      const current = this.nodes.get(value);
-      if (current) {
-        for (const nodes of this.nodes.values()) {
-          nodes.removeAdjacent(current);
-        }
-      }
-      return this.nodes.delete(value);
-    }
-    removeEdge(source, destination) {
-      const sourceNode = this.nodes.get(source);
-      const destinationNode = this.nodes.get(destination);
-      if (sourceNode && destinationNode) {
-        sourceNode.removeAdjacent(destinationNode);
-      }
-      return [sourceNode, destinationNode];
-    }
-  }
-
-  const projects = ["a", "b", "c", "d", "e", "f"];
-  const dependencies = [
-    ["a", "d"],
-    ["f", "b"],
-    ["b", "d"],
-    ["f", "a"],
-    ["d", "c"],
-  ];
-  const buildProject = (projects, dependencies) => {
-    let projectsGraph = new Graph();
-    for (let i = 0; i < projects.length; i++) {
-      projectsGraph.addVertex(projects[i]);
-    }
-
-    for (let j = 0; j < dependencies.length; j++) {
-      projectsGraph.addEdge(dependencies[j][0], dependencies[j][1]);
-    }
-
-    return projectsGraph;
-  };
-
-  let projectsGraph = buildProject(projects, dependencies);
-
-  const projectBuilder = (graph) => {
-    console.log(graph);
-    let order = [];
-
-    for (const [key, value] of graph) {
-      console.log(value.getAdjacents());
+  const countWays = (n) => {
+    if (n < 0) {
+      return 0;
+    } else if (n === 0) {
+      return 1;
+    } else {
+      return countWays(n - 1) + countWays(n - 2) + countWays(n - 3);
     }
   };
-  console.log(projectBuilder(projectsGraph));
+
+  // memoization solution
+  const getSteps = (n) => {
+    let combo = {};
+    const calcCombo = (n) => {
+      if (n < 0) return 0;
+      if (n === 0) return 1;
+      if (!combo[n]) {
+        combo[n] = calcCombo(n - 1) + calcCombo(n - 2) + calcCombo(n - 3);
+      }
+      return combo[n];
+    };
+    calcCombo(n);
+    return combo[n];
+  };
+
+  console.log(countWays(5));
+  console.log(getSteps(5));
 
   return <div></div>;
 };
